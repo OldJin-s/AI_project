@@ -8,6 +8,12 @@ import cv2
 import pickle
 
 
+import torch
+from torch.utils.data import Dataset
+import cv2
+import numpy as np
+import os
+
 class ExerciseDataset(Dataset):
     def __init__(self, root_dir, transform=None, frames_per_video=16, device='cpu'):
         """
@@ -59,16 +65,17 @@ class ExerciseDataset(Dataset):
 
         cap.release()
 
-        # 프레임 수가 부족할 경우 반복하여 채움
+        # 프레임 수가 부족할 경우 0으로 채움 (검정 화면으로 채우는 방식)
         while len(frames) < self.frames_per_video:
-            frames.append(frames[-1])  # 마지막 프레임을 반복해서 추가
+            frames.append(np.zeros_like(frames[-1]))  # 마지막 프레임과 같은 크기의 0으로 채움
 
         # 텐서 변환 및 전처리
-        frames = torch.tensor(frames, dtype=torch.float32, device=self.device).permute(0, 3, 1, 2)  # (T, H, W, C) → (T, C, H, W)
+        frames = torch.tensor(np.array(frames), dtype=torch.float32, device=self.device).permute(0, 3,1,2) 
         if self.transform:
             frames = self.transform(frames)
 
         return frames, label
+
     
 
 class WholeExerciseDataset(Dataset):
@@ -114,7 +121,8 @@ class WholeExerciseDataset(Dataset):
             frames.append(frames[-1])  # 마지막 프레임을 반복해서 추가
 
         # 텐서 변환 및 전처리
-        frames = torch.tensor(frames, dtype=torch.float32, device=self.device).permute(0, 3, 1, 2)  # (T, H, W, C) → (T, C, H, W)
+        # frames 리스트를 numpy.ndarray로 변환 후 tensor로 변환
+        frames = torch.tensor(np.array(frames), dtype=torch.float32, device=self.device).permute(0, 3, 1, 2)  # (T, H, W, C) → (T, C, H, W)
         if self.transform:
             frames = self.transform(frames)
 
