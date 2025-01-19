@@ -1,2 +1,3 @@
-*__pycache
-*class_code/__pycache
+*__pycache__/
+*class_code/__pycache__
+*oldjins/
