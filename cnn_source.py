@@ -5,28 +5,35 @@ import torch_geometric
 from torch_geometric.nn import Sequential, GCNConv
 import torch.optim as optimizer
 
-class SimpleCNN(nn.Module):
+class Simple3DCNN(nn.Module):
     def __init__(self):
         super().__init__()
         self.conv_layers = nn.Sequential(
-            nn.Conv3d(3, 6, 5,padding=2),  # 입력 채널 3 (RGB)
+            nn.Conv3d(1, 6, (3, 5, 5)),  # (T, H, W) -> (1, 6, 3, 5, 5)
             nn.ReLU(),
-            nn.MaxPool3d(2, stride=2),  # stride=2로 출력 크기 감소
-            nn.Conv3d(6, 16, 5,padding = 2),  # padding=2로 출력 크기 유지
+            nn.MaxPool3d(4, stride=3),  # (B, 6, 3, 2, 2)
+            nn.Conv3d(6, 16, (3, 5, 5)),  # (B, 6, 3, 2, 2) -> (B, 16, 1, 1, 1)
             nn.ReLU(),
-            nn.MaxPool3d(2, stride=2),  # stride=2로 출력 크기 감소
+            nn.MaxPool3d(2, stride=2),  # (B, 16, 1, 1, 1)
         )
         self.flatten = nn.Flatten()
-        # 계산된 출력 크기에 맞춰 fc_layer 수정
+
+        # 최종 출력에 맞춰 fc 레이어 수정
         self.fc_layer = nn.Sequential(
-            nn.Linear(150528, 120),  # 수정된 입력 크기 (50176)
+            nn.Linear(126896, 120),  # (16) -> 출력 크기 (조정 필요)
             nn.ReLU(),
             nn.Linear(120, 84),
             nn.ReLU(),
-            nn.Linear(84, 3) )
+            nn.Linear(84, 4)  # 클래스 수 3 (예: push_start, squat_start, lunge_start)
+        )
 
     def forward(self, x):
+        # Conv3d에 맞게 처리
         out = self.conv_layers(x)
-        flatten = self.flatten(out)
-        fc_out = self.fc_layer(flatten)
+
+        # 플래튼 후 FC 처리
+        out = self.flatten(out)
+        fc_out = self.fc_layer(out)
+        
         return fc_out
+
