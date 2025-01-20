@@ -13,11 +13,15 @@ class CNN_Autoencoder(nn.Module):
             nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1),  # 16채널 -> 32채널
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),  # 32채널 -> 64채널
+            nn.ReLU(),
+            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),  # 32채널 -> 64채널
             nn.ReLU()
         )
         
         # 디코더 (Decoder)
         self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),  # 64채널 -> 32채널
+            nn.ReLU(),
             nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),  # 64채널 -> 32채널
             nn.ReLU(),
             nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1),  # 32채널 -> 16채널
