@@ -31,7 +31,12 @@ class PoseFrameDataset(Dataset):
                 self.frame_pairs.append((wrong_path, processed_path))
             else:
                 print(f"Warning: No corresponding processed file found for {wrong_file}")
-
+        for processed_file in processed_files:
+            file_number = processed_file.split('_')[-1]
+            corresponding_file = f"{self.pose_type}_graph_{file_number}"
+            if corresponding_file in processed_files:
+                processed_path = os.path.join(self.processed_dir, corresponding_file)
+                self.frame_pairs.append((processed_path, processed_path))
     def __len__(self):
         return len(self.frame_pairs) * 2
 

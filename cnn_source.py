@@ -20,7 +20,7 @@ class Simple3DCNN(nn.Module):
 
         # 최종 출력에 맞춰 fc 레이어 수정
         self.fc_layer = nn.Sequential(
-            nn.Linear(126896, 120),  # (16) -> 출력 크기 (조정 필요)
+            nn.Linear(380688, 120),  # (16) -> 출력 크기 (조정 필요)
             nn.ReLU(),
             nn.Linear(120, 84),
             nn.ReLU(),
